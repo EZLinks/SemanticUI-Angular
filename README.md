@@ -8,7 +8,7 @@ Check out the [Documentation](http://clickermonkey.github.io/SemanticUI-Angular/
 
 The easiest way to install this binding is with npm:
 
-- npm: `npm install semantic-ui-angular`
+- `npm install semantic-ui-angular`
 
 ### Modules
 
