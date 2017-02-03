@@ -1,4 +1,4 @@
-## SemanticUI-Angular [![Build Status](https://travis-ci.org/ClickerMonkey/SemanticUI-Angular.svg?branch=master)](https://travis-ci.org/ClickerMonkey/SemanticUI-Angular) [![devDependency Status](https://david-dm.org/ClickerMonkey/SemanticUI-Angular/dev-status.svg?branch=master)](https://david-dm.org/ClickerMonkey/SemanticUI-Angular#info=devDependencies)
+## SemanticUI-Angular [![Build Status](https://travis-ci.org/EZLinks/SemanticUI-Angular.svg?branch=master)](https://travis-ci.org/EZLinks/SemanticUI-Angular)
 
 This library provides over 100 Angular directives for building Semantic UI elements, collections, views & modules.
 
@@ -6,10 +6,9 @@ Check out the [Documentation](http://clickermonkey.github.io/SemanticUI-Angular/
 
 ### Installing
 
-The easiest way to install this binding is with bower or npm:
+The easiest way to install this binding is with npm:
 
-- bower: `bower install semantic-ui-angular-jquery`
-- npm: `npm install semantic-ui-angular-jquery`
+- npm: `npm install semantic-ui-angular`
 
 ### Modules
 
