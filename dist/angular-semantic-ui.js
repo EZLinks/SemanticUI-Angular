@@ -2,9 +2,9 @@
  * semantic-ui-angular-jquery - 0.2.1
  * Angular Directives for Semantic UI
  * 
- * https://github.com/ClickerMonkey/SemanticUI-Angular
+ * https://github.com/EZLinks/SemanticUI-Angular
  * Released under the MIT license.
- * Copyright 2016 Philip Diffenderfer and contributors.
+ * Copyright 2017 EZLinks and contributors.
  */
 
 angular.module('semantic-ui', [
@@ -1029,6 +1029,107 @@ angular.module('semantic-ui', [
 {
 
   app
+    .factory('SemanticDimmerLink', ['SemanticUI', SemanticDimmerLink])
+    .directive('smDimmerBind', ['SemanticUI', SemanticDimmerBind])
+    .directive('smDimmer', ['SemanticDimmerLink', SemanticDimmer])
+  ;
+
+  var BEHAVIORS = {
+    smDimmerShow:           'show',
+    smDimmerHide:           'hide',
+    smDimmerToggle:         'toggle'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'dimmer', method );
+    }]);
+  });
+
+  function SemanticDimmerBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smDimmerBind', 'dimmer' );
+  }
+
+  function SemanticDimmer(SemanticDimmerLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Optional */
+        visible: '=',
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onShow: '=',
+        onHide: '=',
+        onChange: '='
+      },
+
+      template: '<div class="ui dimmer" ng-transclude></div>',
+
+      link: SemanticDimmerLink
+    };
+  }
+
+  function SemanticDimmerLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
+
+      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
+      if ( attributes.visible )
+      {
+        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
+          function(updated) {
+            element.dimmer( updated ? 'show' : 'hide' );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onShow',
+          function(value) {
+            visibleWatcher.set( true );
+          }
+        );
+
+        SemanticUI.onEvent( settings, 'onHide',
+          function(value) {
+            visibleWatcher.set( false );
+          }
+        );
+      }
+
+      SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
+        onShow:   'onShow',
+        onHide:   'onHide',
+        onChange: 'onChange'
+      });
+
+      element.dimmer( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-dimmer', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
     .controller('SemanticDropdownController', ['$scope', SemanticDropdownController])
     .factory('SemanticDropdownLink', ['SemanticUI', '$timeout', SemanticDropdownLink])
     .directive('smDropdownBind', ['SemanticUI', SemanticDropdownBind])
@@ -1347,107 +1448,6 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-dropdown', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
-    .factory('SemanticDimmerLink', ['SemanticUI', SemanticDimmerLink])
-    .directive('smDimmerBind', ['SemanticUI', SemanticDimmerBind])
-    .directive('smDimmer', ['SemanticDimmerLink', SemanticDimmer])
-  ;
-
-  var BEHAVIORS = {
-    smDimmerShow:           'show',
-    smDimmerHide:           'hide',
-    smDimmerToggle:         'toggle'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'dimmer', method );
-    }]);
-  });
-
-  function SemanticDimmerBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smDimmerBind', 'dimmer' );
-  }
-
-  function SemanticDimmer(SemanticDimmerLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Optional */
-        visible: '=',
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onShow: '=',
-        onHide: '=',
-        onChange: '='
-      },
-
-      template: '<div class="ui dimmer" ng-transclude></div>',
-
-      link: SemanticDimmerLink
-    };
-  }
-
-  function SemanticDimmerLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'dimmer' );
-
-      // If the visible attribute is specified, listen to onHide and update modal when variable changes.
-      if ( attributes.visible )
-      {
-        var visibleWatcher = SemanticUI.watcher( scope, 'visible',
-          function(updated) {
-            element.dimmer( updated ? 'show' : 'hide' );
-          }
-        );
-
-        SemanticUI.onEvent( settings, 'onShow',
-          function(value) {
-            visibleWatcher.set( true );
-          }
-        );
-
-        SemanticUI.onEvent( settings, 'onHide',
-          function(value) {
-            visibleWatcher.set( false );
-          }
-        );
-      }
-
-      SemanticUI.linkEvents( scope, settings, $.fn.dimmer.settings, {
-        onShow:   'onShow',
-        onHide:   'onHide',
-        onChange: 'onChange'
-      });
-
-      element.dimmer( settings );
-
-      if ( angular.isFunction( scope.onInit ) ) {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-dimmer', ['semantic-ui-core']) );
 
 (function(app)
 {
@@ -1817,164 +1817,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticProgressLink', ['SemanticUI', SemanticProgressLink])
-    .directive('smProgressBind', ['SemanticUI', SemanticModalBind])
-    .directive('smProgress', ['SemanticProgressLink', SemanticProgress])
-  ;
-
-  var BEHAVIORS = {
-    'smProgressIncrement': 'increment'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'progress', method );
-    }]);
-  });
-
-  function SemanticModalBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smProgressBind', 'progress' );
-  }
-
-  function SemanticProgress(SemanticProgressLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-        /* Required */
-        model: '=',
-        /* Optional */
-        total: '=',
-        label: '@',
-        activeText: '@',
-        successText: '@',
-        errorText: '@',
-        warningText: '@',
-        duration: '@',
-        onInit: '=',
-        /* Events */
-        onChange: '=',
-        onSuccess: '=',
-        onActive: '=',
-        onError: '=',
-        onWarning: '='
-      },
-
-      template: [
-        '<div class="ui progress">',
-        '  <div class="bar">',
-        '    <div class="progress" ng-show="label"></div>',
-        '  </div>',
-        '  <div class="label" ng-transclude></div>',
-        '</div>'
-      ].join('\n'),
-
-      link: SemanticProgressLink
-    };
-  }
-
-  function SemanticProgressLink(SemanticUI)
-  {
-    var addText = function( scope, attributes, settings, attribute, property )
-    {
-      if ( angular.isDefined( attributes[ attribute ] ) )
-      {
-        settings.text = settings.text || {};
-        settings.text[ property ] = scope[ attribute ];
-      }
-    };
-
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'progress' );
-
-      SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
-        onChange:   'onChange',
-        onSuccess:  'onSuccess',
-        onActive:   'onActive',
-        onError:    'onError',
-        onWarning:  'onWarning'
-      });
-
-      if ( !angular.isDefined( settings.showActivity ) )
-      {
-        settings.showActivity = false;
-      }
-
-      if ( angular.isDefined( attributes.label ) )
-      {
-        settings.label = scope.label;
-      }
-
-      if ( angular.isDefined( attributes.total ) )
-      {
-        settings.total = scope.total;
-      }
-      else
-      {
-        settings.total = 100;
-      }
-
-      if ( angular.isDefined( attributes.model ) )
-      {
-        settings.value = scope.model;
-      }
-
-      addText( scope, attributes, settings, 'activeText', 'active' );
-      addText( scope, attributes, settings, 'successText', 'success' );
-      addText( scope, attributes, settings, 'errorText', 'error' );
-      addText( scope, attributes, settings, 'warningText', 'warning' );
-
-      element.progress( settings );
-
-      SemanticUI.watcher( scope, 'model', function(value)
-      {
-        var total = element.progress( 'get total' ) || 100;
-
-        element.progress( 'set percent', value * 100 / total );
-        element.progress( 'set value', value );
-      });
-
-      if ( angular.isDefined( attributes.duration ) )
-      {
-        SemanticUI.watcher( scope, 'duration', function(duration)
-        {
-          element.progress( 'set duration', duration );
-        });
-      }
-
-      if ( angular.isDefined( attributes.total ) )
-      {
-        SemanticUI.watcher( scope, 'total', function(total)
-        {
-          element.progress( 'set total', total );
-        });
-      }
-
-      if ( angular.isFunction( scope.onInit ) )
-      {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-progress', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
     .factory('SemanticPopupLink', ['SemanticUI', SemanticPopupLink])
     .factory('SemanticPopupInlineLink', ['SemanticUI', SemanticPopupInlineLink])
     .factory('SemanticPopupDisplayLink', ['SemanticUI', SemanticPopupDisplayLink])
@@ -2194,6 +2036,164 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-popup', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticProgressLink', ['SemanticUI', SemanticProgressLink])
+    .directive('smProgressBind', ['SemanticUI', SemanticModalBind])
+    .directive('smProgress', ['SemanticProgressLink', SemanticProgress])
+  ;
+
+  var BEHAVIORS = {
+    'smProgressIncrement': 'increment'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'progress', method );
+    }]);
+  });
+
+  function SemanticModalBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smProgressBind', 'progress' );
+  }
+
+  function SemanticProgress(SemanticProgressLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+        /* Required */
+        model: '=',
+        /* Optional */
+        total: '=',
+        label: '@',
+        activeText: '@',
+        successText: '@',
+        errorText: '@',
+        warningText: '@',
+        duration: '@',
+        onInit: '=',
+        /* Events */
+        onChange: '=',
+        onSuccess: '=',
+        onActive: '=',
+        onError: '=',
+        onWarning: '='
+      },
+
+      template: [
+        '<div class="ui progress">',
+        '  <div class="bar">',
+        '    <div class="progress" ng-show="label"></div>',
+        '  </div>',
+        '  <div class="label" ng-transclude></div>',
+        '</div>'
+      ].join('\n'),
+
+      link: SemanticProgressLink
+    };
+  }
+
+  function SemanticProgressLink(SemanticUI)
+  {
+    var addText = function( scope, attributes, settings, attribute, property )
+    {
+      if ( angular.isDefined( attributes[ attribute ] ) )
+      {
+        settings.text = settings.text || {};
+        settings.text[ property ] = scope[ attribute ];
+      }
+    };
+
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'progress' );
+
+      SemanticUI.linkEvents( scope, settings, $.fn.progress.settings, {
+        onChange:   'onChange',
+        onSuccess:  'onSuccess',
+        onActive:   'onActive',
+        onError:    'onError',
+        onWarning:  'onWarning'
+      });
+
+      if ( !angular.isDefined( settings.showActivity ) )
+      {
+        settings.showActivity = false;
+      }
+
+      if ( angular.isDefined( attributes.label ) )
+      {
+        settings.label = scope.label;
+      }
+
+      if ( angular.isDefined( attributes.total ) )
+      {
+        settings.total = scope.total;
+      }
+      else
+      {
+        settings.total = 100;
+      }
+
+      if ( angular.isDefined( attributes.model ) )
+      {
+        settings.value = scope.model;
+      }
+
+      addText( scope, attributes, settings, 'activeText', 'active' );
+      addText( scope, attributes, settings, 'successText', 'success' );
+      addText( scope, attributes, settings, 'errorText', 'error' );
+      addText( scope, attributes, settings, 'warningText', 'warning' );
+
+      element.progress( settings );
+
+      SemanticUI.watcher( scope, 'model', function(value)
+      {
+        var total = element.progress( 'get total' ) || 100;
+
+        element.progress( 'set percent', value * 100 / total );
+        element.progress( 'set value', value );
+      });
+
+      if ( angular.isDefined( attributes.duration ) )
+      {
+        SemanticUI.watcher( scope, 'duration', function(duration)
+        {
+          element.progress( 'set duration', duration );
+        });
+      }
+
+      if ( angular.isDefined( attributes.total ) )
+      {
+        SemanticUI.watcher( scope, 'total', function(total)
+        {
+          element.progress( 'set total', total );
+        });
+      }
+
+      if ( angular.isFunction( scope.onInit ) )
+      {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-progress', ['semantic-ui-core']) );
 
 (function(app)
 {
@@ -2439,98 +2439,6 @@ angular.module('semantic-ui', [
 {
 
   app
-    .factory('SemanticShapeLink', ['SemanticUI', SemanticShapeLink])
-    .directive('smShapeBind', ['SemanticUI', SemanticShapeBind])
-    .directive('smShape', ['SemanticShapeLink', SemanticShape])
-  ;
-
-  var BEHAVIORS = {
-    smShapeFlipUp:          'flip up',
-    smShapeFlipDown:        'flip down',
-    smShapeFlipLeft:        'flip left',
-    smShapeFlipRight:       'flip right',
-    smShapeFlipOver:        'flip over',
-    smShapeFlipBack:        'flip back',
-    smShapeSetNextSide:     'set next side',
-    smShapeReset:           'reset',
-    smShapeQueue:           'queue',
-    smShapeRepaint:         'repaint',
-    smShapeSetDefaultSide:  'set default side',
-    smShapeSetStageSize:    'set stage size',
-    smShapeRefresh:         'refresh'
-  };
-
-  angular.forEach( BEHAVIORS, function(method, directive)
-  {
-    app.directive( directive, ['SemanticUI', function(SemanticUI)
-    {
-      return SemanticUI.createBehavior( directive, 'shape', method );
-    }]);
-  });
-
-  function SemanticShapeBind(SemanticUI)
-  {
-    return SemanticUI.createBind( 'smShapeBind', 'shape' );
-  }
-
-  function SemanticShape(SemanticShapeLink)
-  {
-    return {
-
-      restrict: 'E',
-
-      replace: true,
-
-      transclude: true,
-
-      scope: {
-
-        settings: '=',
-        onInit: '=',
-        /* Events */
-        onBeforeChange: '=',
-        onChange: '=',
-      },
-
-      template: [
-        '<div class="ui shape">',
-        ' <div class="sides" ng-transclude>',
-        ' </div>',
-        '</div>'
-      ].join('\n'),
-
-      link: SemanticShapeLink
-
-    };
-  }
-
-  function SemanticShapeLink(SemanticUI)
-  {
-    return function(scope, element, attributes)
-    {
-      var settings = scope.settings || {};
-
-      SemanticUI.linkSettings( scope, element, attributes, 'shape' );
-
-      SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
-        onBeforeChange:   'onBeforeChange',
-        onChange:         'onChange'
-      });
-
-      element.shape( settings );
-
-      if ( angular.isFunction( scope.onInit ) ) {
-        scope.onInit( element );
-      }
-    };
-  }
-
-})( angular.module('semantic-ui-shape', ['semantic-ui-core']) );
-
-(function(app)
-{
-
-  app
     .factory('SemanticSidebarLink', ['SemanticUI', SemanticSidebarLink])
     .directive('smSidebarBind', ['SemanticUI', SemanticSidebarBind])
     .directive('smSidebar', ['SemanticSidebarLink', SemanticSidebar])
@@ -2649,6 +2557,98 @@ angular.module('semantic-ui', [
   }
 
 })( angular.module('semantic-ui-sidebar', ['semantic-ui-core']) );
+
+(function(app)
+{
+
+  app
+    .factory('SemanticShapeLink', ['SemanticUI', SemanticShapeLink])
+    .directive('smShapeBind', ['SemanticUI', SemanticShapeBind])
+    .directive('smShape', ['SemanticShapeLink', SemanticShape])
+  ;
+
+  var BEHAVIORS = {
+    smShapeFlipUp:          'flip up',
+    smShapeFlipDown:        'flip down',
+    smShapeFlipLeft:        'flip left',
+    smShapeFlipRight:       'flip right',
+    smShapeFlipOver:        'flip over',
+    smShapeFlipBack:        'flip back',
+    smShapeSetNextSide:     'set next side',
+    smShapeReset:           'reset',
+    smShapeQueue:           'queue',
+    smShapeRepaint:         'repaint',
+    smShapeSetDefaultSide:  'set default side',
+    smShapeSetStageSize:    'set stage size',
+    smShapeRefresh:         'refresh'
+  };
+
+  angular.forEach( BEHAVIORS, function(method, directive)
+  {
+    app.directive( directive, ['SemanticUI', function(SemanticUI)
+    {
+      return SemanticUI.createBehavior( directive, 'shape', method );
+    }]);
+  });
+
+  function SemanticShapeBind(SemanticUI)
+  {
+    return SemanticUI.createBind( 'smShapeBind', 'shape' );
+  }
+
+  function SemanticShape(SemanticShapeLink)
+  {
+    return {
+
+      restrict: 'E',
+
+      replace: true,
+
+      transclude: true,
+
+      scope: {
+
+        settings: '=',
+        onInit: '=',
+        /* Events */
+        onBeforeChange: '=',
+        onChange: '=',
+      },
+
+      template: [
+        '<div class="ui shape">',
+        ' <div class="sides" ng-transclude>',
+        ' </div>',
+        '</div>'
+      ].join('\n'),
+
+      link: SemanticShapeLink
+
+    };
+  }
+
+  function SemanticShapeLink(SemanticUI)
+  {
+    return function(scope, element, attributes)
+    {
+      var settings = scope.settings || {};
+
+      SemanticUI.linkSettings( scope, element, attributes, 'shape' );
+
+      SemanticUI.linkEvents( scope, settings, $.fn.shape.settings, {
+        onBeforeChange:   'onBeforeChange',
+        onChange:         'onChange'
+      });
+
+      element.shape( settings );
+
+      if ( angular.isFunction( scope.onInit ) ) {
+        scope.onInit( element );
+      }
+    };
+  }
+
+})( angular.module('semantic-ui-shape', ['semantic-ui-core']) );
 
 (function(app)
 {

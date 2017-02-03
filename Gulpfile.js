@@ -25,7 +25,7 @@ gulp.task('build', function () {
     .src( src )
     .pipe( plugins.concat('angular-semantic-ui.js') )
     .pipe( plugins.header(banner, { pkg : pkg } ))
-    .pipe( gulp.dest('.') );
+    .pipe( gulp.dest('./dist') );
 });
 
 gulp.task('build-min', function () {
@@ -36,7 +36,7 @@ gulp.task('build-min', function () {
       .pipe( plugins.uglify({mangle:true}) )
     .pipe( sourcemaps.write('.') )
     .pipe( plugins.header(banner, { pkg : pkg } ))
-    .pipe( gulp.dest('.') );
+    .pipe( gulp.dest('./dist') );
 });
 
 gulp.task('default', ['build', 'build-min']);
