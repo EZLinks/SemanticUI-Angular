@@ -1,8 +1,14 @@
 language: node_js
 node_js:
-  - 0.10
-
+  - node
 before_script:
-  - npm install --dev --silent
-
-script: gulp
+  - npm install -g gulp
+script:
+  - npm install
+  - npm run build
+deploy:
+    provider: npm
+    api_key: "7d88f8f6-7945-459b-a8bd-0a2ab3eee0b3"
+    email: "ejohnson@ezlinks.com"
+    on:
+        tags: true

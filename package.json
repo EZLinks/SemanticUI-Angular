@@ -10,6 +10,9 @@
     "url": "git://github.com/EZLinks/SemanticUI-Angular.git"
   },
   "main": "dist/angular-semantic-ui",
+  "scripts": {
+    "build": "gulp"
+  },
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-concat": "^2.4.3",
