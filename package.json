@@ -2,13 +2,14 @@
   "name": "semantic-ui-angular-jquery",
   "version": "0.2.1",
   "description": "Angular Directives for Semantic UI",
-  "author": "Philip Diffenderfer",
+  "author": "EZLinks",
   "license": "MIT",
-  "homepage": "https://github.com/ClickerMonkey/SemanticUI-Angular",
+  "homepage": "https://github.com/EZLinks/SemanticUI-Angular",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ClickerMonkey/SemanticUI-Angular.git"
+    "url": "git://github.com/EZLinks/SemanticUI-Angular.git"
   },
+  "main": "dist/angular-semantic-ui",
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-concat": "^2.4.3",
